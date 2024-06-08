@@ -6,10 +6,27 @@ use std::error::Error;
 
 use image::{GenericImage, GenericImageView, Pixel, Rgb};
 
-use crate::exclude::{hsl_exclude, random_exclude};
+use crate::exclude::{hsl_exclude};
 use crate::sort::{hue, saturation, luminance};
 use crate::cli::Cli;
 
+#![feature(proc_macro, wasm_custom_section, wasm_import_module)]
+
+extern crate wasm_bindgen;
+extern crate image;
+
+use wasm_bindgen::prelude::*;
+use std::mem;
+
+pub mod console {
+    use wasm_bindgen::prelude::*;
+
+    #[wasm_bindgen]
+    extern {
+        #[wasm_bindgen(js_namespace = console)]
+        pub fn log(s: &str);
+    }
+}
 
 fn get_hsl_func(func_name: &str) -> fn(pixel: &Rgb<u8>) -> f32 {
     match func_name {
@@ -18,6 +35,11 @@ fn get_hsl_func(func_name: &str) -> fn(pixel: &Rgb<u8>) -> f32 {
         "hue" | "hue_threshold" => hue,
         _ => panic!("Unknown HSL function name: {}", func_name),
     }
+}
+
+fn pixelsort(test: str) -> Result<(), Box<dyn Error>> {
+    console::log(test)
+    Ok(())
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -49,12 +71,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                 cli.lower_threshold,
                 cli.upper_threshold,
             ),
-            "random_exclude" => random_exclude(
-                col,
-                get_hsl_func(cli.sort_algorithm.as_str()),
-                cli.lower_threshold,
-                cli.upper_threshold,
-            ),
+            // "random_exclude" => random_exclude(
+            //     col,
+            //     get_hsl_func(cli.sort_algorithm.as_str()),
+            //     cli.lower_threshold,
+            //     cli.upper_threshold,
+            // ),
             _ => panic!("Unknown pixel exclusion algorithm"),
         };
         for (c, i) in grouped_cols.concat().iter().enumerate() {
