@@ -10,23 +10,6 @@ use crate::exclude::{hsl_exclude, random_exclude};
 use crate::sort::{hue, saturation, luminance};
 use crate::cli::Cli;
 
-#![feature(proc_macro, wasm_custom_section, wasm_import_module)]
-
-extern crate wasm_bindgen;
-extern crate image;
-
-use wasm_bindgen::prelude::*;
-use std::mem;
-pub mod console {
-    use wasm_bindgen::prelude::*;
-
-    #[wasm_bindgen]
-    extern {
-        #[wasm_bindgen(js_namespace = console)]
-        pub fn log(s: &str);
-    }
-}
-
 fn get_hsl_func(func_name: &str) -> fn(pixel: &Rgb<u8>) -> f32 {
     match func_name {
         "lightness" | "lightness_threshold" => luminance,
